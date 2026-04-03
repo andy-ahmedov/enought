@@ -1,0 +1,10 @@
+# ~/.codex/config.toml
+
+file_opener = "vscode"
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+
+[agents]
+max_threads = 6
+max_depth = 1

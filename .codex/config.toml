@@ -1,0 +1,8 @@
+# Repo-scoped Codex config for this project.
+# Keep this file intentionally small.
+# The goal is to help project-specific multi-agent workflows without
+# overriding the user's broader local preferences too aggressively.
+
+[agents]
+max_threads = 4
+max_depth = 1

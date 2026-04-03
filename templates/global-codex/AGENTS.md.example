@@ -1,0 +1,11 @@
+# ~/.codex/AGENTS.md
+
+## Personal working agreements
+
+- On non-trivial tasks, plan first before editing.
+- Prefer small, reviewable diffs over broad rewrites.
+- When a repository has `AGENTS.md`, follow it before starting work.
+- After code changes, propose verification steps.
+- When the same mistake happens twice, help update the repository docs.
+- Prefer WSL workspaces on Windows when the project lives in Linux.
+- Always use the OpenAI developer documentation MCP server if you need to work with the OpenAI API, ChatGPT Apps SDK, Codex, or official OpenAI product behavior without me having to explicitly ask.

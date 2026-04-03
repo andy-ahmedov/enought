@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Smart Spend Widget</string>
+    <string name="raw_notification_listener_service_label">Raw notification listener</string>
+    <string name="today_spend_widget_label">Today spend</string>
+    <string name="today_spend_widget_description">Shows the confirmed phone spend for today on the home screen.</string>
+</resources>
