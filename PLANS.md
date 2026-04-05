@@ -72,6 +72,7 @@
 - [done] добавлены Gradle wrapper и version catalog;
 - [done] настроен локальный `local.properties` для Android SDK;
 - [done] проект собирается через `./gradlew :app:testDebugUnitTest :app:assembleDebug`.
+- [done] ingestion Mir Pay replay-дублей сделан idempotent по exact `source_package + payload_hash`, debug-screen ограничен Mir Pay, а migration `5 -> 6` чистит уже накопленные exact raw/payment duplicates.
 
 Что еще не сделано:
 
@@ -86,6 +87,7 @@
 Следующий рекомендуемый шаг:
 
 - [todo] перейти к raw sample collection для реальных bank payment notifications и только после этого безопасно реинтродуцировать bank parser.
+- [todo] после накопления подтвержденных raw samples вернуть bank parsing точечно, только для реальных payment templates.
 
 ---
 

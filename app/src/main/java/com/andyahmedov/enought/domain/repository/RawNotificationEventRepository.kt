@@ -4,8 +4,7 @@ import com.andyahmedov.enought.domain.model.RawNotificationEvent
 import kotlinx.coroutines.flow.Flow
 
 interface RawNotificationEventRepository {
-    suspend fun save(event: RawNotificationEvent)
+    suspend fun saveIfNew(event: RawNotificationEvent): Boolean
 
     fun observeRawEvents(): Flow<List<RawNotificationEvent>>
 }
-

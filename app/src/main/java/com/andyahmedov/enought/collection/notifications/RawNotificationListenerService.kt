@@ -26,10 +26,10 @@ class RawNotificationListenerService : NotificationListenerService() {
 
         serviceScope.launch {
             val rawEventSaved = runCatching {
-                appContainer.rawNotificationEventRepository.save(rawEvent)
+                appContainer.rawNotificationEventRepository.saveIfNew(rawEvent)
             }
 
-            if (rawEventSaved.isFailure) {
+            if (rawEventSaved.isFailure || rawEventSaved.getOrNull() != true) {
                 return@launch
             }
 

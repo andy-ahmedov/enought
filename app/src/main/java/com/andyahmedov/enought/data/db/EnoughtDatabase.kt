@@ -18,7 +18,7 @@ import com.andyahmedov.enought.data.entity.RawNotificationEventEntity
         PaymentEventSourceEntity::class,
         PaymentEventEditEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = false,
 )
 @TypeConverters(InstantTypeConverters::class)

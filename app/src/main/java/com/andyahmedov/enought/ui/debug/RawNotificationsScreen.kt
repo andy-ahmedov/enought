@@ -29,9 +29,7 @@ fun RawNotificationsRoute(
     onNavigateBack: () -> Unit,
 ) {
     val rawEvents by rawNotificationEventRepository.observeRawEvents().collectAsState(initial = emptyList())
-    val uiState = RawNotificationsUiState(
-        items = rawEvents.map { it.toListItem() },
-    )
+    val uiState = rawNotificationsUiState(rawEvents = rawEvents)
 
     RawNotificationsScreen(
         uiState = uiState,
@@ -73,27 +71,6 @@ fun RawNotificationsScreen(
 }
 
 @Composable
-private fun EmptyRawNotificationsState(
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text(
-            text = "No supported raw notifications yet.",
-            style = MaterialTheme.typography.headlineSmall,
-        )
-        Text(
-            text = "Only allowlisted packages are captured. Grant notification access, then trigger a Mir Pay, Alfa-Bank, or Sber notification to verify ingestion.",
-            style = MaterialTheme.typography.bodyLarge,
-        )
-    }
-}
-
-@Composable
 private fun RawNotificationsList(
     items: List<RawNotificationListItem>,
     contentPadding: PaddingValues,
@@ -113,6 +90,31 @@ private fun RawNotificationsList(
             key = { item -> item.id },
         ) { item ->
             RawNotificationCard(item = item)
+        }
+    }
+}
+
+@Composable
+private fun EmptyRawNotificationsState(
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(24.dp),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = "No Mir Pay raw notifications yet.",
+                style = MaterialTheme.typography.headlineSmall,
+            )
+            Text(
+                text = "This screen only shows Mir Pay notifications. Grant notification access, then trigger a Mir Pay payment to verify ingestion.",
+                style = MaterialTheme.typography.bodyLarge,
+            )
         }
     }
 }

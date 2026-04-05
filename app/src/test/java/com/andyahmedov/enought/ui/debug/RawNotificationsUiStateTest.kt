@@ -32,4 +32,34 @@ class RawNotificationsUiStateTest {
         assertEquals("Coffee Shop", listItem.bigText)
         assertEquals("hash-1", listItem.payloadHash)
     }
+
+    @Test
+    fun `raw notifications ui state keeps Mir Pay items only`() {
+        val uiState = rawNotificationsUiState(
+            listOf(
+                rawEvent(id = "mir-1", sourcePackage = "ru.nspk.mirpay"),
+                rawEvent(id = "sber-1", sourcePackage = "ru.sberbankmobile"),
+                rawEvent(id = "alfa-1", sourcePackage = "ru.alfabank.mobile.android"),
+            ),
+        )
+
+        assertEquals(listOf("mir-1"), uiState.items.map { item -> item.id })
+    }
+
+    private fun rawEvent(
+        id: String,
+        sourcePackage: String,
+    ): RawNotificationEvent {
+        return RawNotificationEvent(
+            id = id,
+            sourcePackage = sourcePackage,
+            postedAt = Instant.parse("2026-03-31T13:05:00Z"),
+            title = "Title",
+            text = "Text",
+            subText = null,
+            bigText = "Big text",
+            extrasJson = "{\"ignored\":true}",
+            payloadHash = "hash-$id",
+        )
+    }
 }

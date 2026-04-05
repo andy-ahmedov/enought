@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.map
 class RoomRawNotificationEventRepository(
     private val rawNotificationEventDao: RawNotificationEventDao,
 ) : RawNotificationEventRepository {
-    override suspend fun save(event: RawNotificationEvent) {
-        rawNotificationEventDao.upsert(event.toEntity())
+    override suspend fun saveIfNew(event: RawNotificationEvent): Boolean {
+        return rawNotificationEventDao.insertIgnore(event.toEntity()) != INSERT_FAILED
     }
 
     override fun observeRawEvents(): Flow<List<RawNotificationEvent>> {
@@ -18,5 +18,8 @@ class RoomRawNotificationEventRepository(
             entities.map { it.toDomain() }
         }
     }
-}
 
+    private companion object {
+        const val INSERT_FAILED = -1L
+    }
+}

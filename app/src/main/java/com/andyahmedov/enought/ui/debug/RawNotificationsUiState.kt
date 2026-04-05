@@ -29,3 +29,15 @@ fun RawNotificationEvent.toListItem(): RawNotificationListItem {
         payloadHash = payloadHash,
     )
 }
+
+fun rawNotificationsUiState(
+    rawEvents: List<RawNotificationEvent>,
+): RawNotificationsUiState {
+    return RawNotificationsUiState(
+        items = rawEvents
+            .filter { event -> event.sourcePackage == MIR_PAY_SOURCE_PACKAGE }
+            .map { event -> event.toListItem() },
+    )
+}
+
+private const val MIR_PAY_SOURCE_PACKAGE = "ru.nspk.mirpay"
