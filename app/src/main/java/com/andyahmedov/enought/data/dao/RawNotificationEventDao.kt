@@ -12,6 +12,18 @@ interface RawNotificationEventDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertIgnore(event: RawNotificationEventEntity): Long
 
+    @Query(
+        """
+        SELECT * FROM raw_notification_events
+        WHERE posted_at >= :startInclusive AND posted_at < :endExclusive
+        ORDER BY posted_at DESC
+        """,
+    )
+    suspend fun getByPostedAtBetween(
+        startInclusive: java.time.Instant,
+        endExclusive: java.time.Instant,
+    ): List<RawNotificationEventEntity>
+
     @Query("SELECT * FROM raw_notification_events ORDER BY posted_at DESC")
     fun observeAllByPostedAtDesc(): Flow<List<RawNotificationEventEntity>>
 

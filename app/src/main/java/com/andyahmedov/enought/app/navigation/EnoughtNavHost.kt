@@ -65,6 +65,9 @@ fun EnoughtNavHost() {
         composable(route = RawNotificationsDestination.route) {
             RawNotificationsRoute(
                 rawNotificationEventRepository = appContainer.rawNotificationEventRepository,
+                buildDiagnosticsReportUseCase = appContainer.buildDiagnosticsReportUseCase,
+                diagnosticsLogClipboardWriter = appContainer.diagnosticsLogClipboardWriter,
+                diagnosticsLogShareLauncher = appContainer.diagnosticsLogShareLauncher,
                 onNavigateBack = {
                     navController.popBackStack()
                 },

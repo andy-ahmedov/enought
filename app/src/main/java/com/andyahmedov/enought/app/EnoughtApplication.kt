@@ -8,6 +8,10 @@ import com.andyahmedov.enought.collection.notifications.NotificationAccessSettin
 import com.andyahmedov.enought.collection.notifications.NotificationSourcePolicy
 import com.andyahmedov.enought.collection.notifications.SystemNotificationAccessSettingsLauncher
 import com.andyahmedov.enought.collection.notifications.SystemNotificationAccessStatusReader
+import com.andyahmedov.enought.common.DiagnosticsLogClipboardWriter
+import com.andyahmedov.enought.common.DiagnosticsLogShareLauncher
+import com.andyahmedov.enought.common.SystemDiagnosticsLogClipboardWriter
+import com.andyahmedov.enought.common.SystemDiagnosticsLogShareLauncher
 import com.andyahmedov.enought.data.db.DatabaseFactory
 import com.andyahmedov.enought.data.repository.SharedPreferencesDailyLimitRepository
 import com.andyahmedov.enought.data.repository.RoomPaymentEventEditRepository
@@ -19,6 +23,7 @@ import com.andyahmedov.enought.domain.repository.PaymentEventEditRepository
 import com.andyahmedov.enought.domain.repository.PaymentEventRepository
 import com.andyahmedov.enought.domain.repository.RawNotificationEventRepository
 import com.andyahmedov.enought.domain.repository.WidgetPrivateModeRepository
+import com.andyahmedov.enought.domain.usecase.BuildDiagnosticsReportUseCase
 import com.andyahmedov.enought.domain.usecase.ClearDailyLimitUseCase
 import com.andyahmedov.enought.domain.usecase.ConfirmPaymentEventUseCase
 import com.andyahmedov.enought.domain.usecase.CorrectPaymentAmountUseCase
@@ -58,6 +63,7 @@ interface EnoughtAppContainer {
     val notificationAccessStatusReader: NotificationAccessStatusReader
     val notificationAccessSettingsLauncher: NotificationAccessSettingsLauncher
     val processIncomingRawEventUseCase: ProcessIncomingRawEventUseCase
+    val buildDiagnosticsReportUseCase: BuildDiagnosticsReportUseCase
     val observeTodaySummaryUseCase: ObserveTodaySummaryUseCase
     val observeTodayPaymentEventsUseCase: ObserveTodayPaymentEventsUseCase
     val observeTodayReviewItemsUseCase: ObserveTodayReviewItemsUseCase
@@ -73,6 +79,8 @@ interface EnoughtAppContainer {
     val setWidgetPrivateModeUseCase: SetWidgetPrivateModeUseCase
     val getTodayWidgetStateUseCase: GetTodayWidgetStateUseCase
     val widgetUpdater: WidgetUpdater
+    val diagnosticsLogClipboardWriter: DiagnosticsLogClipboardWriter
+    val diagnosticsLogShareLauncher: DiagnosticsLogShareLauncher
 }
 
 private class DefaultEnoughtAppContainer(
@@ -115,10 +123,24 @@ private class DefaultEnoughtAppContainer(
     override val notificationAccessSettingsLauncher: NotificationAccessSettingsLauncher =
         SystemNotificationAccessSettingsLauncher()
 
+    override val diagnosticsLogClipboardWriter: DiagnosticsLogClipboardWriter =
+        SystemDiagnosticsLogClipboardWriter()
+
+    override val diagnosticsLogShareLauncher: DiagnosticsLogShareLauncher =
+        SystemDiagnosticsLogShareLauncher()
+
     override val observeTodaySummaryUseCase: ObserveTodaySummaryUseCase =
         ObserveTodaySummaryUseCase(
             paymentEventRepository = paymentEventRepository,
             dailyLimitRepository = dailyLimitRepository,
+            clock = Clock.systemDefaultZone(),
+        )
+
+    override val buildDiagnosticsReportUseCase: BuildDiagnosticsReportUseCase =
+        BuildDiagnosticsReportUseCase(
+            rawNotificationEventRepository = rawNotificationEventRepository,
+            paymentEventRepository = paymentEventRepository,
+            paymentEventEditRepository = paymentEventEditRepository,
             clock = Clock.systemDefaultZone(),
         )
 

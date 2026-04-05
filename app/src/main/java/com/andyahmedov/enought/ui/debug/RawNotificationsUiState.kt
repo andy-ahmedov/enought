@@ -4,6 +4,7 @@ import com.andyahmedov.enought.domain.model.RawNotificationEvent
 
 data class RawNotificationsUiState(
     val items: List<RawNotificationListItem> = emptyList(),
+    val statusMessage: String? = null,
 )
 
 data class RawNotificationListItem(
@@ -32,11 +33,13 @@ fun RawNotificationEvent.toListItem(): RawNotificationListItem {
 
 fun rawNotificationsUiState(
     rawEvents: List<RawNotificationEvent>,
+    statusMessage: String? = null,
 ): RawNotificationsUiState {
     return RawNotificationsUiState(
         items = rawEvents
             .filter { event -> event.sourcePackage == MIR_PAY_SOURCE_PACKAGE }
             .map { event -> event.toListItem() },
+        statusMessage = statusMessage,
     )
 }
 

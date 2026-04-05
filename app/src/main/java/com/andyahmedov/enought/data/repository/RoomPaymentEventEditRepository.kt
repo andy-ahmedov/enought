@@ -10,4 +10,14 @@ class RoomPaymentEventEditRepository(
     override suspend fun save(edit: PaymentEventEdit) {
         paymentEventEditDao.insert(edit.toEntity())
     }
+
+    override suspend fun getByPaymentEventIds(paymentEventIds: List<String>): List<PaymentEventEdit> {
+        if (paymentEventIds.isEmpty()) {
+            return emptyList()
+        }
+
+        return paymentEventEditDao.getByPaymentEventIds(paymentEventIds).map { entity ->
+            entity.toDomain()
+        }
+    }
 }

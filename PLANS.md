@@ -73,6 +73,7 @@
 - [done] настроен локальный `local.properties` для Android SDK;
 - [done] проект собирается через `./gradlew :app:testDebugUnitTest :app:assembleDebug`.
 - [done] ingestion Mir Pay replay-дублей сделан idempotent по exact `source_package + payload_hash`, debug-screen ограничен Mir Pay, а migration `5 -> 6` чистит уже накопленные exact raw/payment duplicates.
+- [done] debug-screen получил экспорт диагностического лога за сегодня: plain-text copy/share snapshot по raw notifications, payment events и manual edits без нового persistent processing journal.
 
 Что еще не сделано:
 

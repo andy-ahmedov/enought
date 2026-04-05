@@ -46,6 +46,16 @@ class RawNotificationsUiStateTest {
         assertEquals(listOf("mir-1"), uiState.items.map { item -> item.id })
     }
 
+    @Test
+    fun `raw notifications ui state keeps status message`() {
+        val uiState = rawNotificationsUiState(
+            rawEvents = listOf(rawEvent(id = "mir-1", sourcePackage = "ru.nspk.mirpay")),
+            statusMessage = "Diagnostic log copied.",
+        )
+
+        assertEquals("Diagnostic log copied.", uiState.statusMessage)
+    }
+
     private fun rawEvent(
         id: String,
         sourcePackage: String,

@@ -35,6 +35,29 @@ class RoomRawNotificationEventRepositoryTest {
         assertEquals(listOf("raw-1", "raw-2"), dao.events.map { event -> event.id })
     }
 
+    @Test
+    fun `getRawEventsBetween forwards bounds and maps domain events`() = runTest {
+        val dao = FakeRawNotificationEventDao(
+            initialEvents = listOf(
+                rawEvent(id = "raw-1", payloadHash = "hash-1", postedAt = Instant.parse("2026-04-04T23:59:59Z")).toEntity(),
+                rawEvent(id = "raw-2", payloadHash = "hash-2", postedAt = Instant.parse("2026-04-05T13:00:13Z")).toEntity(),
+                rawEvent(id = "raw-3", payloadHash = "hash-3", postedAt = Instant.parse("2026-04-05T14:00:13Z")).toEntity(),
+            ),
+        )
+        val repository = RoomRawNotificationEventRepository(dao)
+        val startInclusive = Instant.parse("2026-04-05T00:00:00Z")
+        val endExclusive = Instant.parse("2026-04-06T00:00:00Z")
+
+        val events = repository.getRawEventsBetween(
+            startInclusive = startInclusive,
+            endExclusive = endExclusive,
+        )
+
+        assertEquals(startInclusive, dao.lastStartInclusive)
+        assertEquals(endExclusive, dao.lastEndExclusive)
+        assertEquals(listOf("raw-3", "raw-2"), events.map { event -> event.id })
+    }
+
     private fun rawEvent(
         id: String,
         payloadHash: String,
@@ -61,6 +84,8 @@ class RoomRawNotificationEventRepositoryTest {
         }
 
         val events = mutableListOf<RawNotificationEventEntity>()
+        var lastStartInclusive: Instant? = null
+        var lastEndExclusive: Instant? = null
 
         override suspend fun insertIgnore(event: RawNotificationEventEntity): Long {
             val duplicate = events.any { existing ->
@@ -72,6 +97,17 @@ class RoomRawNotificationEventRepositoryTest {
 
             events += event
             return events.size.toLong()
+        }
+
+        override suspend fun getByPostedAtBetween(
+            startInclusive: Instant,
+            endExclusive: Instant,
+        ): List<RawNotificationEventEntity> {
+            lastStartInclusive = startInclusive
+            lastEndExclusive = endExclusive
+            return events.filter { event ->
+                event.postedAt >= startInclusive && event.postedAt < endExclusive
+            }.sortedByDescending { event -> event.postedAt }
         }
 
         override fun observeAllByPostedAtDesc(): Flow<List<RawNotificationEventEntity>> {

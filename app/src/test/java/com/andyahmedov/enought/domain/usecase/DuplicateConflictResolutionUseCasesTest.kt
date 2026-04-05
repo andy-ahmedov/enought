@@ -187,6 +187,10 @@ class DuplicateConflictResolutionUseCasesTest {
         override suspend fun save(edit: PaymentEventEdit) {
             savedEdits += edit
         }
+
+        override suspend fun getByPaymentEventIds(paymentEventIds: List<String>): List<PaymentEventEdit> {
+            return savedEdits.filter { edit -> edit.paymentEventId in paymentEventIds }
+        }
     }
 
     private class FakeWidgetUpdater : WidgetUpdater {
