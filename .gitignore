@@ -1,7 +1,7 @@
 .gradle/
 .idea/
+.vscode/
 build/
 local.properties
 *.iml
 captures/
-
