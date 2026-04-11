@@ -74,6 +74,9 @@
 - [done] проект собирается через `./gradlew :app:testDebugUnitTest :app:assembleDebug`.
 - [done] ingestion Mir Pay replay-дублей сделан idempotent по exact `source_package + payload_hash`, debug-screen ограничен Mir Pay, а migration `5 -> 6` чистит уже накопленные exact raw/payment duplicates.
 - [done] debug-screen получил экспорт диагностического лога за сегодня: plain-text copy/share snapshot по raw notifications, payment events и manual edits без нового persistent processing journal.
+- [done] введен локальный retention slice на последние 90 дней для `payment_events` и `raw_notification_events`, с opportunistic cleanup при `MainActivity.onResume` и после успешного raw capture.
+- [done] добавлен `History` screen c периодами `Today / 7 days / 30 days / 90 days`: `Today` показывает список платежей, длинные периоды показывают дневные totals.
+- [done] wide regular widget получил дополнительную метрику за вчерашний локальный день без расширения private mode.
 
 Что еще не сделано:
 
@@ -261,11 +264,31 @@
 
 ---
 
+## Phase 8 — Short history and retention
+
+**Цель:** дать короткую историю трат без расползания в общий financial ledger.
+
+### Задачи
+
+- [done] ограничить локальное хранение последними 90 днями.
+- [done] добавить period-based history screen для `Today / 7 days / 30 days / 90 days`.
+- [done] для длинных периодов показывать дневные aggregates вместо плоской ленты всех событий.
+- [done] расширить wide regular widget вторичным сигналом за вчера.
+
+### Definition of done
+
+- приложение не хранит бессрочную историю трат;
+- пользователь может быстро переключаться между короткими локальными периодами;
+- главный экран остается сфокусированным на `Today`, а история уходит в отдельный route;
+- private widget mode не начинает пересвечивать дополнительные суммы.
+
+---
+
 ## Текущий рекомендуемый порядок ближайших маленьких задач
 
-1. Parser coverage expansion.
-2. Explainable confidence tuning for newly supported bank templates.
-3. Additional bank-specific parser tests from real notification samples.
+1. Собрать реальные raw samples банковских payment notifications на устройстве.
+2. Вернуть bank parsing только для подтвержденных payment templates.
+3. Точечно усилить explainable confidence rules и тесты на основе реальных samples.
 
 ---
 

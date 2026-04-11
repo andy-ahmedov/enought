@@ -233,6 +233,15 @@ Parser должен быть rule-based и расширяемым.
 - Room
 - локальная БД
 
+### Retention policy
+
+Для V1 локальная история не хранится бесконечно.
+
+- `payment_events` и `raw_notification_events` держатся только за последние 90 локальных дней, включая сегодня;
+- cutoff считается от локальной календарной даты через `Clock.zone`, а не от "текущего момента минус 90 * 24 часа";
+- cleanup допускается opportunistic: при возврате в `MainActivity` и после успешного сохранения нового supported raw notification;
+- `payment_event_edits` и `payment_event_sources` чистятся каскадом вместе со старыми `payment_events`, без отдельного orphan-cleanup слоя.
+
 ### Что хранить обязательно
 
 #### Таблица `raw_notification_events`
@@ -305,6 +314,13 @@ Domain layer не должен знать об Android notification API напр
 - конфликтные пары со `status == SUSPECTED` и общим `duplicateGroupId` честно исключаются из total до ручного решения;
 - `hasLowConfidenceItems` теперь означает наличие нерешенных `SUSPECTED` событий в этом дне.
 
+Дополнительно для short-history slice теперь реализовано:
+
+- `ObserveHistoryPeriodSnapshotUseCase` для периодов `TODAY`, `LAST_7_DAYS`, `LAST_30_DAYS`, `LAST_90_DAYS`;
+- все period ranges считаются как скользящие локальные окна, а не как calendar month/week abstraction;
+- для `TODAY` UI получает список отдельных платежей, а для `7/30/90` дней — список дневных агрегатов поверх тех же `PaymentEvent`;
+- отдельный widget-support use case считает вчерашний локальный total, не расширяя сам widget до самостоятельного history-screen.
+
 ---
 
 ## 4.7 Widget layer
@@ -325,10 +341,12 @@ Domain layer не должен знать об Android notification API напр
 На текущем первом widget slice уже реализовано:
 
 - Glance-based homescreen widget;
-- источник данных — только `ObserveTodaySummaryUseCase` + проверка notification access;
+- источник данных — только подготовленные use cases (`ObserveTodaySummaryUseCase`, yesterday-total helper) + проверка notification access;
 - `NoPermission`, `NoData`, `Ready` состояния;
 - мягкий hint о suspected / low-confidence items внутри `NoData` и `Ready`, без отдельного review-state;
-- обновление после сохранения нового `PaymentEvent` и при `MainActivity.onResume`, чтобы permission-state не залипал после возврата в приложение.
+- wide regular layout дополнен вторичным сигналом за вчерашний локальный день;
+- private mode не расширяется вчерашней суммой и остается менее чувствительным;
+- обновление после сохранения нового `PaymentEvent` и при `MainActivity.onResume`, чтобы permission-state не залипал после возврата в приложение и retention-cleanup не оставлял устаревший widget state.
 
 ### Правила
 
@@ -344,6 +362,7 @@ Domain layer не должен знать об Android notification API напр
 
 - onboarding / permission setup;
 - today screen;
+- history screen с short-range периодами;
 - event review screen;
 - settings / privacy mode / daily limit.
 
@@ -358,7 +377,15 @@ Domain layer не должен знать об Android notification API напр
 - в ready-state показываются total amount, count и last payment;
 - под summary показывается read-only список сегодняшних `CONFIRMED` и `CORRECTED` `PaymentEvent`, которые вошли в итог;
 - при наличии нерешенных `SUSPECTED` событий экран дает вход в review flow;
-- debug-screen сырых уведомлений остается secondary developer action, а не основной UI-источник данных.
+- debug-screen сырых уведомлений остается secondary developer action, а не основной UI-источник данных;
+- из `Today` есть явный вход в отдельный `History` route, чтобы не перегружать главный экран дополнительными period sections.
+
+На текущем history slice уже реализовано:
+
+- отдельный `History` route с period picker для `Today / 7 days / 30 days / 90 days`;
+- `Today` внутри history переиспользует платежный список, а более длинные периоды показывают дневные totals и count;
+- history не дублирует daily limit controls и widget privacy toggle, чтобы не смешивать задачи экрана;
+- suspected items в выбранном периоде остаются исключенными из totals, но дают честный вход в существующий review flow.
 
 На текущем manual correction slice уже реализовано:
 
