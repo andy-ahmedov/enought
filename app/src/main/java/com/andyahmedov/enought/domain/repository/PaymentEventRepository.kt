@@ -24,4 +24,8 @@ interface PaymentEventRepository {
         startInclusive: Instant,
         endExclusive: Instant,
     ): Flow<List<PaymentEvent>>
+
+    suspend fun deleteOlderThan(
+        cutoffExclusive: Instant,
+    ) = Unit
 }

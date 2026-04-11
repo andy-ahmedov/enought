@@ -61,4 +61,8 @@ class RoomPaymentEventRepository(
             entities.map { it.toDomain() }
         }
     }
+
+    override suspend fun deleteOlderThan(cutoffExclusive: Instant) {
+        paymentEventDao.deleteOlderThan(cutoffExclusive)
+    }
 }

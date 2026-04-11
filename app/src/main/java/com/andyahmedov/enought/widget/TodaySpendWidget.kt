@@ -324,6 +324,12 @@ private fun ColumnScope.WideReadyRegularWidgetState(
         Spacer(modifier = GlanceModifier.width(12.dp))
         WideSummaryMetric(
             modifier = GlanceModifier.defaultWeight(),
+            label = "Yesterday",
+            value = widgetState.yesterdayTotalAmountMinor.toRubDisplayString(),
+        )
+        Spacer(modifier = GlanceModifier.width(12.dp))
+        WideSummaryMetric(
+            modifier = GlanceModifier.defaultWeight(),
             label = if (widgetState.remainingAmountMinor == null) "Last" else if (widgetState.remainingAmountMinor >= 0L) "Left" else "Over",
             value = if (widgetState.remainingAmountMinor == null) {
                 widgetState.lastPaymentAmountMinor?.toRubDisplayString() ?: "—"

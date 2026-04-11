@@ -29,13 +29,16 @@ import com.andyahmedov.enought.domain.usecase.ConfirmPaymentEventUseCase
 import com.andyahmedov.enought.domain.usecase.CorrectPaymentAmountUseCase
 import com.andyahmedov.enought.domain.usecase.DeduplicatePaymentEventUseCase
 import com.andyahmedov.enought.domain.usecase.DismissPaymentEventUseCase
+import com.andyahmedov.enought.domain.usecase.EnforceDataRetentionUseCase
 import com.andyahmedov.enought.domain.usecase.KeepDuplicateConflictSeparateUseCase
 import com.andyahmedov.enought.domain.usecase.MergeDuplicateConflictUseCase
 import com.andyahmedov.enought.domain.usecase.ObserveDailyLimitUseCase
+import com.andyahmedov.enought.domain.usecase.ObserveHistoryPeriodSnapshotUseCase
 import com.andyahmedov.enought.domain.usecase.ObserveTodayPaymentEventsUseCase
 import com.andyahmedov.enought.domain.usecase.ObserveTodayReviewItemsUseCase
 import com.andyahmedov.enought.domain.usecase.ObserveTodaySummaryUseCase
 import com.andyahmedov.enought.domain.usecase.ObserveWidgetPrivateModeUseCase
+import com.andyahmedov.enought.domain.usecase.ObserveYesterdayTotalUseCase
 import com.andyahmedov.enought.domain.usecase.ProcessIncomingRawEventUseCase
 import com.andyahmedov.enought.domain.usecase.SetDailyLimitUseCase
 import com.andyahmedov.enought.domain.usecase.SetWidgetPrivateModeUseCase
@@ -64,9 +67,12 @@ interface EnoughtAppContainer {
     val notificationAccessSettingsLauncher: NotificationAccessSettingsLauncher
     val processIncomingRawEventUseCase: ProcessIncomingRawEventUseCase
     val buildDiagnosticsReportUseCase: BuildDiagnosticsReportUseCase
+    val enforceDataRetentionUseCase: EnforceDataRetentionUseCase
+    val observeHistoryPeriodSnapshotUseCase: ObserveHistoryPeriodSnapshotUseCase
     val observeTodaySummaryUseCase: ObserveTodaySummaryUseCase
     val observeTodayPaymentEventsUseCase: ObserveTodayPaymentEventsUseCase
     val observeTodayReviewItemsUseCase: ObserveTodayReviewItemsUseCase
+    val observeYesterdayTotalUseCase: ObserveYesterdayTotalUseCase
     val observeDailyLimitUseCase: ObserveDailyLimitUseCase
     val observeWidgetPrivateModeUseCase: ObserveWidgetPrivateModeUseCase
     val confirmPaymentEventUseCase: ConfirmPaymentEventUseCase
@@ -144,8 +150,21 @@ private class DefaultEnoughtAppContainer(
             clock = Clock.systemDefaultZone(),
         )
 
+    override val enforceDataRetentionUseCase: EnforceDataRetentionUseCase =
+        EnforceDataRetentionUseCase(
+            paymentEventRepository = paymentEventRepository,
+            rawNotificationEventRepository = rawNotificationEventRepository,
+            clock = Clock.systemDefaultZone(),
+        )
+
     override val observeTodayPaymentEventsUseCase: ObserveTodayPaymentEventsUseCase =
         ObserveTodayPaymentEventsUseCase(
+            paymentEventRepository = paymentEventRepository,
+            clock = Clock.systemDefaultZone(),
+        )
+
+    override val observeHistoryPeriodSnapshotUseCase: ObserveHistoryPeriodSnapshotUseCase =
+        ObserveHistoryPeriodSnapshotUseCase(
             paymentEventRepository = paymentEventRepository,
             clock = Clock.systemDefaultZone(),
         )
@@ -156,10 +175,17 @@ private class DefaultEnoughtAppContainer(
             clock = Clock.systemDefaultZone(),
         )
 
+    override val observeYesterdayTotalUseCase: ObserveYesterdayTotalUseCase =
+        ObserveYesterdayTotalUseCase(
+            paymentEventRepository = paymentEventRepository,
+            clock = Clock.systemDefaultZone(),
+        )
+
     override val getTodayWidgetStateUseCase: GetTodayWidgetStateUseCase =
         GetTodayWidgetStateUseCase(
             notificationAccessStatusReader = notificationAccessStatusReader,
             observeTodaySummaryUseCase = observeTodaySummaryUseCase,
+            observeYesterdayTotalUseCase = observeYesterdayTotalUseCase,
             widgetPrivateModeRepository = widgetPrivateModeRepository,
         )
 

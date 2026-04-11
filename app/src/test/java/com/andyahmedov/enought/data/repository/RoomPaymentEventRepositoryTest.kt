@@ -65,6 +65,17 @@ class RoomPaymentEventRepositoryTest {
         assertEquals(listOf(30000L, 20000L), events.map { it.amountMinor })
     }
 
+    @Test
+    fun `deleteOlderThan forwards cutoff to dao`() = runTest {
+        val paymentEventDao = FakePaymentEventDao(relations = emptyList())
+        val repository = RoomPaymentEventRepository(paymentEventDao)
+        val cutoffExclusive = Instant.parse("2026-01-01T21:00:00Z")
+
+        repository.deleteOlderThan(cutoffExclusive)
+
+        assertEquals(cutoffExclusive, paymentEventDao.lastDeleteOlderThanCutoff)
+    }
+
     private fun paymentEvent(
         id: String,
         paidAt: Instant,
@@ -99,6 +110,7 @@ class RoomPaymentEventRepositoryTest {
         var lastEndExclusive: Instant? = null
         var lastSuspendStartInclusive: Instant? = null
         var lastSuspendEndExclusive: Instant? = null
+        var lastDeleteOlderThanCutoff: Instant? = null
 
         override suspend fun upsertEvent(event: PaymentEventEntity) = Unit
 
@@ -144,6 +156,10 @@ class RoomPaymentEventRepositoryTest {
                     relation.event.paidAt >= startInclusive && relation.event.paidAt < endExclusive
                 }.sortedByDescending { it.event.paidAt },
             )
+        }
+
+        override suspend fun deleteOlderThan(cutoffExclusive: Instant) {
+            lastDeleteOlderThanCutoff = cutoffExclusive
         }
     }
 }

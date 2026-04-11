@@ -29,4 +29,7 @@ interface RawNotificationEventDao {
 
     @Query("SELECT * FROM raw_notification_events ORDER BY posted_at DESC")
     suspend fun getAllByPostedAtDesc(): List<RawNotificationEventEntity>
+
+    @Query("DELETE FROM raw_notification_events WHERE posted_at < :cutoffExclusive")
+    suspend fun deleteOlderThan(cutoffExclusive: java.time.Instant)
 }

@@ -17,6 +17,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         lifecycleScope.launch {
+            applicationContext.appContainer.enforceDataRetentionUseCase()
             applicationContext.appContainer.widgetUpdater.refresh()
         }
     }

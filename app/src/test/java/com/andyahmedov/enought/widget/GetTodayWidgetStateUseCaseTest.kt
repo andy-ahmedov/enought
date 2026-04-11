@@ -10,6 +10,7 @@ import com.andyahmedov.enought.domain.model.PaymentStatus
 import com.andyahmedov.enought.domain.repository.DailyLimitRepository
 import com.andyahmedov.enought.domain.repository.PaymentEventRepository
 import com.andyahmedov.enought.domain.repository.WidgetPrivateModeRepository
+import com.andyahmedov.enought.domain.usecase.ObserveYesterdayTotalUseCase
 import com.andyahmedov.enought.domain.usecase.ObserveTodaySummaryUseCase
 import java.time.Clock
 import java.time.Instant
@@ -27,6 +28,7 @@ class GetTodayWidgetStateUseCaseTest {
         val useCase = GetTodayWidgetStateUseCase(
             notificationAccessStatusReader = FakeNotificationAccessStatusReader(false),
             observeTodaySummaryUseCase = observeTodaySummaryUseCase(emptyList(), null),
+            observeYesterdayTotalUseCase = observeYesterdayTotalUseCase(emptyList()),
             widgetPrivateModeRepository = FakeWidgetPrivateModeRepository(false),
         )
 
@@ -51,6 +53,7 @@ class GetTodayWidgetStateUseCaseTest {
                 ),
                 limitAmountMinor = null,
             ),
+            observeYesterdayTotalUseCase = observeYesterdayTotalUseCase(emptyList()),
             widgetPrivateModeRepository = FakeWidgetPrivateModeRepository(true),
         )
 
@@ -88,6 +91,15 @@ class GetTodayWidgetStateUseCaseTest {
                 ),
                 limitAmountMinor = null,
             ),
+            observeYesterdayTotalUseCase = observeYesterdayTotalUseCase(
+                listOf(
+                    paymentEvent(
+                        id = "yesterday-1",
+                        paidAt = Instant.parse("2026-03-31T12:00:00Z"),
+                        amountMinor = 48000L,
+                    ),
+                ),
+            ),
             widgetPrivateModeRepository = FakeWidgetPrivateModeRepository(false),
         )
 
@@ -97,6 +109,7 @@ class GetTodayWidgetStateUseCaseTest {
             TodayWidgetState.ReadyRegular(
                 totalAmountMinor = 134900L,
                 paymentsCount = 2,
+                yesterdayTotalAmountMinor = 48000L,
                 lastPaymentAmountMinor = 9900L,
                 remainingAmountMinor = null,
                 limitWarningLevel = null,
@@ -125,6 +138,7 @@ class GetTodayWidgetStateUseCaseTest {
                 ),
                 limitAmountMinor = null,
             ),
+            observeYesterdayTotalUseCase = observeYesterdayTotalUseCase(emptyList()),
             widgetPrivateModeRepository = FakeWidgetPrivateModeRepository(true),
         )
 
@@ -155,6 +169,7 @@ class GetTodayWidgetStateUseCaseTest {
                 ),
                 limitAmountMinor = 100000L,
             ),
+            observeYesterdayTotalUseCase = observeYesterdayTotalUseCase(emptyList()),
             widgetPrivateModeRepository = FakeWidgetPrivateModeRepository(true),
         )
 
@@ -178,6 +193,18 @@ class GetTodayWidgetStateUseCaseTest {
         return ObserveTodaySummaryUseCase(
             paymentEventRepository = FakePaymentEventRepository(events),
             dailyLimitRepository = FakeDailyLimitRepository(limitAmountMinor),
+            clock = Clock.fixed(
+                Instant.parse("2026-03-31T21:30:00Z"),
+                ZoneId.of("Europe/Moscow"),
+            ),
+        )
+    }
+
+    private fun observeYesterdayTotalUseCase(
+        events: List<PaymentEvent>,
+    ): ObserveYesterdayTotalUseCase {
+        return ObserveYesterdayTotalUseCase(
+            paymentEventRepository = FakePaymentEventRepository(events),
             clock = Clock.fixed(
                 Instant.parse("2026-03-31T21:30:00Z"),
                 ZoneId.of("Europe/Moscow"),

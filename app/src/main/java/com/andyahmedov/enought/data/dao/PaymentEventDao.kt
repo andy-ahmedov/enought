@@ -89,4 +89,7 @@ interface PaymentEventDao {
         startInclusive: java.time.Instant,
         endExclusive: java.time.Instant,
     ): Flow<List<PaymentEventWithSources>>
+
+    @Query("DELETE FROM payment_events WHERE paid_at < :cutoffExclusive")
+    suspend fun deleteOlderThan(cutoffExclusive: java.time.Instant)
 }

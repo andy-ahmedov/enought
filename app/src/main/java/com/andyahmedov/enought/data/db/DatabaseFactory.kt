@@ -243,11 +243,29 @@ object DatabaseFactory {
         }
     }
 
+    private val MIGRATION_6_7 = object : Migration(6, 7) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_payment_events_paid_at`
+                ON `payment_events` (`paid_at`)
+                """.trimIndent(),
+            )
+            database.execSQL(
+                """
+                CREATE INDEX IF NOT EXISTS `index_raw_notification_events_posted_at`
+                ON `raw_notification_events` (`posted_at`)
+                """.trimIndent(),
+            )
+        }
+    }
+
     internal val ALL_MIGRATIONS = arrayOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
         MIGRATION_3_4,
         MIGRATION_4_5,
         MIGRATION_5_6,
+        MIGRATION_6_7,
     )
 }

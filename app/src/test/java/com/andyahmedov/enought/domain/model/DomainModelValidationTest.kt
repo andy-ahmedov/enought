@@ -87,4 +87,26 @@ class DomainModelValidationTest {
         assertNull(summary.limitAmountMinor)
         assertNull(summary.limitWarningLevel)
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun historyDaySummary_rejectsNegativePaymentsCount() {
+        HistoryDaySummary(
+            date = LocalDate.parse("2026-03-31"),
+            totalAmountMinor = 34900L,
+            paymentsCount = -1,
+            lastPaymentAmountMinor = 34900L,
+        )
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun periodSpendSummary_rejectsNegativePaymentsCount() {
+        PeriodSpendSummary(
+            startDate = LocalDate.parse("2026-03-01"),
+            endDateInclusive = LocalDate.parse("2026-03-31"),
+            totalAmountMinor = 34900L,
+            paymentsCount = -1,
+            lastPaymentAmountMinor = 34900L,
+            hasLowConfidenceItems = false,
+        )
+    }
 }

@@ -58,6 +58,17 @@ class RoomRawNotificationEventRepositoryTest {
         assertEquals(listOf("raw-3", "raw-2"), events.map { event -> event.id })
     }
 
+    @Test
+    fun `deleteOlderThan forwards cutoff to dao`() = runTest {
+        val dao = FakeRawNotificationEventDao()
+        val repository = RoomRawNotificationEventRepository(dao)
+        val cutoffExclusive = Instant.parse("2026-01-01T21:00:00Z")
+
+        repository.deleteOlderThan(cutoffExclusive)
+
+        assertEquals(cutoffExclusive, dao.lastDeleteOlderThanCutoff)
+    }
+
     private fun rawEvent(
         id: String,
         payloadHash: String,
@@ -86,6 +97,7 @@ class RoomRawNotificationEventRepositoryTest {
         val events = mutableListOf<RawNotificationEventEntity>()
         var lastStartInclusive: Instant? = null
         var lastEndExclusive: Instant? = null
+        var lastDeleteOlderThanCutoff: Instant? = null
 
         override suspend fun insertIgnore(event: RawNotificationEventEntity): Long {
             val duplicate = events.any { existing ->
@@ -116,6 +128,10 @@ class RoomRawNotificationEventRepositoryTest {
 
         override suspend fun getAllByPostedAtDesc(): List<RawNotificationEventEntity> {
             return events.sortedByDescending { event -> event.postedAt }
+        }
+
+        override suspend fun deleteOlderThan(cutoffExclusive: Instant) {
+            lastDeleteOlderThanCutoff = cutoffExclusive
         }
 
         private companion object {

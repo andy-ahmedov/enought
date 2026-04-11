@@ -2,12 +2,9 @@ package com.andyahmedov.enought.domain.usecase
 
 import com.andyahmedov.enought.domain.model.DailySpendSummary
 import com.andyahmedov.enought.domain.model.DailyLimitWarningLevel
-import com.andyahmedov.enought.domain.model.PaymentEvent
-import com.andyahmedov.enought.domain.model.PaymentStatus
 import com.andyahmedov.enought.domain.repository.DailyLimitRepository
 import com.andyahmedov.enought.domain.repository.PaymentEventRepository
 import java.time.Clock
-import java.time.Instant
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -19,7 +16,7 @@ class ObserveTodaySummaryUseCase(
 ) {
     operator fun invoke(): Flow<DailySpendSummary> {
         val today = LocalDate.now(clock)
-        val dayRange = today.toInstantRange(clock)
+        val dayRange = today.toSpendDateRange().toInstantRange(clock)
 
         return paymentEventRepository.observePaymentEventsBetween(
             startInclusive = dayRange.startInclusive,
@@ -32,17 +29,12 @@ class ObserveTodaySummaryUseCase(
         }
     }
 
-    private fun List<PaymentEvent>.toDailySpendSummary(
+    private fun List<com.andyahmedov.enought.domain.model.PaymentEvent>.toDailySpendSummary(
         today: LocalDate,
         limitAmountMinor: Long?,
     ): DailySpendSummary {
-        val includedRubEvents = filter { event ->
-            event.status in INCLUDED_STATUSES && event.currency == RUB_CURRENCY
-        }
-        val hasLowConfidenceItems = any { event ->
-            event.status == PaymentStatus.SUSPECTED
-        }
-        val totalAmountMinor = includedRubEvents.sumOf { it.amountMinor }
+        val aggregate = toSpendAggregate()
+        val totalAmountMinor = aggregate.totalAmountMinor
         val remainingAmountMinor = limitAmountMinor?.minus(totalAmountMinor)
         val limitWarningLevel = when {
             limitAmountMinor == null -> null
@@ -57,38 +49,17 @@ class ObserveTodaySummaryUseCase(
         return DailySpendSummary(
             date = today,
             totalAmountMinor = totalAmountMinor,
-            paymentsCount = includedRubEvents.size,
-            lastPaymentAmountMinor = includedRubEvents.firstOrNull()?.amountMinor,
+            paymentsCount = aggregate.paymentsCount,
+            lastPaymentAmountMinor = aggregate.lastPaymentAmountMinor,
             limitAmountMinor = limitAmountMinor,
             remainingAmountMinor = remainingAmountMinor,
             limitWarningLevel = limitWarningLevel,
-            hasLowConfidenceItems = hasLowConfidenceItems,
+            hasLowConfidenceItems = aggregate.hasLowConfidenceItems,
         )
     }
-
-    private fun LocalDate.toInstantRange(clock: Clock): InstantRange {
-        val zoneId = clock.zone
-        val startInclusive = atStartOfDay(zoneId).toInstant()
-        val endExclusive = plusDays(1).atStartOfDay(zoneId).toInstant()
-
-        return InstantRange(
-            startInclusive = startInclusive,
-            endExclusive = endExclusive,
-        )
-    }
-
-    private data class InstantRange(
-        val startInclusive: Instant,
-        val endExclusive: Instant,
-    )
 
     private companion object {
-        const val RUB_CURRENCY = "RUB"
         const val PERCENT_BASE = 100L
         const val NEAR_LIMIT_PERCENT = 80L
-        val INCLUDED_STATUSES = setOf(
-            PaymentStatus.CONFIRMED,
-            PaymentStatus.CORRECTED,
-        )
     }
 }

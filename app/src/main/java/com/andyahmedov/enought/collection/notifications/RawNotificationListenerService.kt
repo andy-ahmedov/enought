@@ -36,6 +36,9 @@ class RawNotificationListenerService : NotificationListenerService() {
             runCatching {
                 appContainer.processIncomingRawEventUseCase(rawEvent)
             }
+            runCatching {
+                appContainer.enforceDataRetentionUseCase()
+            }
         }
     }
 

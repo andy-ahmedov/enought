@@ -2,10 +2,17 @@ package com.andyahmedov.enought.data.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.time.Instant
 
-@Entity(tableName = "payment_events")
+@Entity(
+    tableName = "payment_events",
+    indices = [
+        Index(value = ["paid_at"]),
+        Index(value = ["duplicate_group_id"]),
+    ],
+)
 data class PaymentEventEntity(
     @PrimaryKey
     val id: String,

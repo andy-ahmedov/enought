@@ -12,6 +12,7 @@ sealed interface TodayWidgetState {
     data class ReadyRegular(
         val totalAmountMinor: Long,
         val paymentsCount: Int,
+        val yesterdayTotalAmountMinor: Long,
         val lastPaymentAmountMinor: Long?,
         val remainingAmountMinor: Long?,
         val limitWarningLevel: DailyLimitWarningLevel?,

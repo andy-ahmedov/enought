@@ -13,6 +13,7 @@ import java.time.Instant
             value = ["source_package", "payload_hash"],
             unique = true,
         ),
+        Index(value = ["posted_at"]),
     ],
 )
 data class RawNotificationEventEntity(

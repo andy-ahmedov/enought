@@ -32,6 +32,10 @@ class RoomRawNotificationEventRepository(
         }
     }
 
+    override suspend fun deleteOlderThan(cutoffExclusive: Instant) {
+        rawNotificationEventDao.deleteOlderThan(cutoffExclusive)
+    }
+
     private companion object {
         const val INSERT_FAILED = -1L
     }

@@ -13,4 +13,8 @@ interface RawNotificationEventRepository {
     ): List<RawNotificationEvent>
 
     fun observeRawEvents(): Flow<List<RawNotificationEvent>>
+
+    suspend fun deleteOlderThan(
+        cutoffExclusive: Instant,
+    ) = Unit
 }
