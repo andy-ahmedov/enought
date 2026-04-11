@@ -26,6 +26,7 @@ fun TodayRoute(
     notificationAccessStatusReader: NotificationAccessStatusReader,
     notificationAccessSettingsLauncher: NotificationAccessSettingsLauncher,
     onOpenRawNotifications: () -> Unit,
+    onOpenHistory: () -> Unit,
     onOpenReview: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
@@ -66,6 +67,7 @@ fun TodayRoute(
             notificationAccessSettingsLauncher.open(context)
         },
         onOpenRawNotifications = onOpenRawNotifications,
+        onOpenHistory = onOpenHistory,
         onOpenReview = onOpenReview,
         onOpenSettings = onOpenSettings,
     )

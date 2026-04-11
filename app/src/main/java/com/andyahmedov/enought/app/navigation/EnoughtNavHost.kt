@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.andyahmedov.enought.app.appContainer
 import com.andyahmedov.enought.ui.debug.RawNotificationsRoute
+import com.andyahmedov.enought.ui.history.HistoryRoute
 import com.andyahmedov.enought.ui.onboarding.OnboardingRoute
 import com.andyahmedov.enought.ui.review.ReviewRoute
 import com.andyahmedov.enought.ui.settings.SettingsRoute
@@ -53,11 +54,28 @@ fun EnoughtNavHost() {
                 onOpenRawNotifications = {
                     navController.navigate(RawNotificationsDestination.route)
                 },
+                onOpenHistory = {
+                    navController.navigate(HistoryDestination.route)
+                },
                 onOpenReview = {
                     navController.navigate(ReviewDestination.route)
                 },
                 onOpenSettings = {
                     navController.navigate(SettingsDestination.route)
+                },
+            )
+        }
+
+        composable(route = HistoryDestination.route) {
+            HistoryRoute(
+                observeHistoryPeriodSnapshotUseCase = appContainer.observeHistoryPeriodSnapshotUseCase,
+                notificationAccessStatusReader = appContainer.notificationAccessStatusReader,
+                notificationAccessSettingsLauncher = appContainer.notificationAccessSettingsLauncher,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onOpenReview = {
+                    navController.navigate(ReviewDestination.route)
                 },
             )
         }

@@ -30,6 +30,7 @@ fun TodayScreen(
     onSetWidgetPrivateModeEnabled: (Boolean) -> Unit,
     onOpenNotificationAccessSettings: () -> Unit,
     onOpenRawNotifications: () -> Unit,
+    onOpenHistory: () -> Unit,
     onOpenReview: () -> Unit,
     onOpenSettings: () -> Unit,
 ) {
@@ -42,10 +43,18 @@ fun TodayScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
-                Text(
-                    text = "Today",
-                    style = MaterialTheme.typography.headlineMedium,
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = "Today",
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+                    TextButton(onClick = onOpenHistory) {
+                        Text(text = "History")
+                    }
+                }
             }
 
             when (uiState) {

@@ -8,6 +8,10 @@ data object TodayDestination : AppDestination {
     override val route: String = "today"
 }
 
+data object HistoryDestination : AppDestination {
+    override val route: String = "history"
+}
+
 data object OnboardingDestination : AppDestination {
     override val route: String = "onboarding"
 }
